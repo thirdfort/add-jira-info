@@ -336,6 +336,11 @@ class Updater {
             return title;
         }
         let match = /[a-zA-Z]+\//.exec(branchName);
+        if (match != null && match.length >= 0) {
+            if (match[0].indexOf("/") !== -1) {
+                match[0] = match[0].replace("/", "");
+            }
+        }
         let branchType = match ? "(" + match[0] + "): " : "";
         const patternsToStrip = [
             `^${this.jiraIssue.key.project} ${this.jiraIssue.key.number}`,
@@ -348,7 +353,7 @@ class Updater {
             title = title.replace(/^\|+/, "").trim();
             title = title.replace(/\|+$/, "").trim();
         }
-        return `${branchType} ${this.jiraIssue.key} | ${title}`;
+        return `${branchType} ${this.jiraIssue.key} | ${this.jiraIssue.title}`;
     }
     body(body) {
         if ((body === null || body === void 0 ? void 0 : body.includes(`${this.jiraIssue.key}`)) &&

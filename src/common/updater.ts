@@ -9,6 +9,11 @@ export class Updater {
     }
 
     let match = /[a-zA-Z]+\//.exec(branchName);
+    if(match != null && match.length >= 0) {
+      if(match[0].indexOf("/") !== -1) {
+        match[0] = match[0].replace("/", "");
+      }
+    }
     let branchType = match ? "("+match[0]+"): " : "";
 
     const patternsToStrip = [
@@ -24,7 +29,7 @@ export class Updater {
       title = title.replace(/\|+$/, "").trim();
     }
 
-    return `${branchType} ${this.jiraIssue.key} | ${title}`;
+    return `${branchType} ${this.jiraIssue.key} | ${this.jiraIssue.title}`;
   }
 
   body(body: string | undefined): string | undefined {

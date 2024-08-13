@@ -331,10 +331,12 @@ class Updater {
     constructor(jiraIssue) {
         this.jiraIssue = jiraIssue;
     }
-    title(title) {
-        if (title.startsWith(`${this.jiraIssue.key} | `)) {
+    title(title, branchName) {
+        if (title.includes(`${this.jiraIssue.key} | `)) {
             return title;
         }
+        let match = /[a-zA-Z]+\//.exec(branchName);
+        let branchType = match ? "(" + match[0] + "): " : "";
         const patternsToStrip = [
             `^${this.jiraIssue.key.project} ${this.jiraIssue.key.number}`,
             `^${this.jiraIssue.key.project}-${this.jiraIssue.key.number}`,
@@ -346,7 +348,7 @@ class Updater {
             title = title.replace(/^\|+/, "").trim();
             title = title.replace(/\|+$/, "").trim();
         }
-        return `${this.jiraIssue.key} | ${title}`;
+        return `${branchType} ${this.jiraIssue.key} | ${title}`;
     }
     body(body) {
         if ((body === null || body === void 0 ? void 0 : body.includes(`${this.jiraIssue.key}`)) &&
@@ -366,7 +368,7 @@ class Updater {
             const regex = new RegExp(`${pattern}`, "i");
             body = body.replace(regex, "").trim();
         }
-        return `${body}\n\n[**${this.jiraIssue.key}** | ${this.jiraIssue.title}](${this.jiraIssue.link})`.trim();
+        return `[**${this.jiraIssue.key}** | ${this.jiraIssue.title}](${this.jiraIssue.link})\n\n${body}`.trim();
     }
     addFixVersionsToBody(body) {
         const { fixVersions } = this.jiraIssue;
@@ -497,7 +499,7 @@ function run() {
             const updater = new updater_1.Updater(jiraIssue);
             if (addJiraKeyToTitle) {
                 core.info(`    Updating pull request title`);
-                pullRequest.title = updater.title(pullRequest.title);
+                pullRequest.title = updater.title(pullRequest.title, branchName);
             }
             if (addJiraKeyToBody) {
                 core.info(`    Updating pull request body`);

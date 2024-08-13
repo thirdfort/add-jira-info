@@ -3,10 +3,13 @@ import { JiraIssue } from "./jira_client";
 export class Updater {
   constructor(private jiraIssue: JiraIssue) {}
 
-  title(title: string): string {
-    if (title.startsWith(`${this.jiraIssue.key} | `)) {
+  title(title: string, branchName: string): string {
+    if (title.includes(`${this.jiraIssue.key} | `)) {
       return title;
     }
+
+    let match = /[a-zA-Z]+\//.exec(branchName);
+    let branchType = match ? "("+match[0]+"): " : "";
 
     const patternsToStrip = [
       `^${this.jiraIssue.key.project} ${this.jiraIssue.key.number}`,
@@ -21,7 +24,7 @@ export class Updater {
       title = title.replace(/\|+$/, "").trim();
     }
 
-    return `${this.jiraIssue.key} | ${title}`;
+    return `${branchType} ${this.jiraIssue.key} | ${title}`;
   }
 
   body(body: string | undefined): string | undefined {
@@ -48,7 +51,7 @@ export class Updater {
       body = body.replace(regex, "").trim();
     }
 
-    return `${body}\n\n[**${this.jiraIssue.key}** | ${this.jiraIssue.title}](${this.jiraIssue.link})`.trim();
+    return `[**${this.jiraIssue.key}** | ${this.jiraIssue.title}](${this.jiraIssue.link})\n\n${body}`.trim();
   }
 
   addFixVersionsToBody(body: string | undefined): string | undefined {

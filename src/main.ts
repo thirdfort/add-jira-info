@@ -97,7 +97,7 @@ export async function run() {
 
     if (addJiraKeyToTitle) {
       core.info(`    Updating pull request title`);
-      pullRequest.title = updater.title(pullRequest.title);
+      pullRequest.title = updater.title(pullRequest.title, branchName);
     }
 
     if (addJiraKeyToBody) {
